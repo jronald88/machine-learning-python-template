@@ -142,11 +142,26 @@ num_var = ["latitude", "longitude","price","minimum_nights","number_of_reviews",
 # We divide the dataset into training and test samples
 print(df.columns)
 
-y = df["price"]
+y = df_num["price"]
 
-X = df.drop("price", axis = 1)[num_var]
+X = df_num.drop("price", axis = 1)
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 42)
 
 print(X_train.head())
 
+#Min Max Scaling
+scaler = MinMaxScaler()
+scaler.fit(X_train)
+#scaler.fit(pd.concat([X_train, y_train.to_frame("price")], axis=1))  # Combine X_train and y_train
+
+
+# Transform training data
+X_train_scal = scaler.transform(X_train)
+X_train_scal = pd.DataFrame(X_train_scal, index = X_train.index, columns = num_variables)
+
+# Transform testing data
+X_test_scal = scaler.transform(X_test)
+X_test_scal = pd.DataFrame(X_test_scal, index = X_test.index, columns = num_variables)
+
+X_train_scal.head()
