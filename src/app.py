@@ -4,6 +4,9 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt 
 import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+
 
 
 # your code here
@@ -13,7 +16,7 @@ print(df.shape)
 print(df.info())
 print(df.describe(include=np.number).T)
 print(df.describe(include=["O"]).T) #or "object"
-print(df.drop("id", axis = 1).duplicated().sum())
+print("There are " + str(df.drop("id", axis = 1).duplicated().sum()) + " duplicates")
 
 if df.drop("id", axis = 1).duplicated().sum() != 0:
     df.drop_duplicates(inplace=True)
@@ -66,8 +69,58 @@ plt.tight_layout()
 plt.savefig("df_num.jpg")
 
 plt.show()
-print("Done")
+
+"""Heatmaps & Analysis of multivariate variables"""
+
+plt.clf()
+sns.heatmap(df_num.corr(), annot = True)
+plt.tight_layout()
+plt.savefig("num_heatmap.jpg")
+
+plt.clf()
+sns.pairplot(data = df)
+plt.tight_layout()
+plt.savefig("pairplot_total.jpg")
+print("Day 1 Complete")
 
 
+"""DAY 2 - Feature Engineering"""
+summary  =  df.describe().T
+print(summary)
 
+plt.clf()
+fig, axis = plt.subplots(3, 3, figsize = (15, 10))
+
+sns.boxplot(ax = axis[0, 0], data = df, y = "latitude")
+sns.boxplot(ax = axis[0, 1], data = df, y = "longitude")
+sns.boxplot(ax = axis[0, 2], data = df, y = "price")
+sns.boxplot(ax = axis[1, 0], data = df, y = "minimum_nights")
+sns.boxplot(ax = axis[1, 1], data = df, y = "number_of_reviews")
+sns.boxplot(ax = axis[1, 2], data = df, y = "reviews_per_month")
+sns.boxplot(ax = axis[2, 0], data = df, y = "calculated_host_listings_count")
+sns.boxplot(ax = axis[2, 1], data = df, y = "availability_365")
+
+plt.tight_layout()
+plt.savefig("boxplots.jpg")
+
+price_stats = df["price"].describe()
+print(price_stats)
+
+price_iqr = price_stats["75%"]-price_stats["25%"]
+price_upper_limit = price_stats["75%"] + 1.5 * price_iqr
+price_lower_limit = price_stats["25%"] - 1.5 * price_iqr
+
+print(f"The upper and lower limits for finding outliers are {round(price_upper_limit, 2)} and {round(price_lower_limit, 2)}, with an interquartile range of {round(price_iqr, 2)}")
+
+print(df[df["price"]>5000])
+
+print(df.isnull().sum().sort_values(ascending=False)/len(df))
+#convert last_review column to pandas datetime type.
+df['last_review'] = pd.to_datetime(df['last_review'])
+
+# Fill missing dates with the previous valid date
+df['last_review'] = df['last_review'].fillna(method='ffill')
+#fill missing data with mean number of reviews per month
+df["reviews_per_month"].fillna(df["reviews_per_month"].mean(), inplace = True)
+print(df.isnull().sum().sort_values(ascending=False)/len(df))
 
