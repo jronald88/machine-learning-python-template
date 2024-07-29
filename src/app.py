@@ -28,6 +28,7 @@ df_num = df.select_dtypes(include=np.number)
 df_cat = df.select_dtypes(include=["object"])
 print(df.info())
 
+
 """Categorical Data"""
 fig, axis = plt.subplots(2, 2, figsize = (10, 7))
 
@@ -38,7 +39,7 @@ for i in range(2):
     for j in range(2):
         c = df_cat.columns[index]
         s = sns.histplot(ax = axis[i,j],data = df_cat, x = c)
-        if c in ["neighbourhood", "last_review"]:
+        if c in ["neighbourhood", "last_review", "room_type"]:
             s.set_xticks([])
         index  +=1
 # Adjust the layout
@@ -48,7 +49,17 @@ plt.tight_layout()
 # Show the plot
 plt.savefig("df_cat.jpg")
 
-plt.show()
+plt.clf()
+sns.countplot(data = df, x="room_type", hue="price")
+plt.savefig("corr_price_roomType.jpg")
+
+plt.clf()
+sns.regplot(data=df, x="minimum_nights", y="price")
+plt.savefig("reg_min_nights_price.jpg")
+
+plt.clf()
+sns.regplot(data=df, x="reviews_per_month", y="number_of_reviews")
+plt.savefig("reg_reviews.jpg")
 
 """Numerical Data"""
 fig, axis = plt.subplots(4, 4, figsize = (10, 7))
@@ -62,6 +73,7 @@ for i in range(2):
         sns.histplot(ax = axis[i,j],data = df_num, x = c)
         sns.boxplot(ax = axis[i+2,j],data = df_num, x = c)
         index  +=1
+        
 # Adjust the layout
 plt.tight_layout()
 
@@ -124,3 +136,4 @@ df['last_review'] = df['last_review'].fillna(method='ffill')
 df["reviews_per_month"].fillna(df["reviews_per_month"].mean(), inplace = True)
 print(df.isnull().sum().sort_values(ascending=False)/len(df))
 
+"""we want to predict the price of the houses. Split train set y var = price. """
