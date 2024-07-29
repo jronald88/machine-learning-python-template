@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt 
 import seaborn as sns
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler
 
 
 
@@ -34,12 +34,12 @@ fig, axis = plt.subplots(2, 2, figsize = (10, 7))
 
 index = 0
 for i in range(2):
-    if index > 3:
+    if index > 4:
         break
     for j in range(2):
         c = df_cat.columns[index]
-        s = sns.histplot(ax = axis[i,j],data = df_cat, x = c)
-        if c in ["neighbourhood", "last_review", "room_type"]:
+        s = sns.countplot(ax = axis[i,j],data = df_cat, x = c)
+        if c in ["neighbourhood", "neighbourhood_group", "last_review", "room_type"]:
             s.set_xticks([])
         index  +=1
 # Adjust the layout
@@ -49,17 +49,6 @@ plt.tight_layout()
 # Show the plot
 plt.savefig("df_cat.jpg")
 
-plt.clf()
-sns.countplot(data = df, x="room_type", hue="price")
-plt.savefig("corr_price_roomType.jpg")
-
-plt.clf()
-sns.regplot(data=df, x="minimum_nights", y="price")
-plt.savefig("reg_min_nights_price.jpg")
-
-plt.clf()
-sns.regplot(data=df, x="reviews_per_month", y="number_of_reviews")
-plt.savefig("reg_reviews.jpg")
 
 """Numerical Data"""
 fig, axis = plt.subplots(4, 4, figsize = (10, 7))
@@ -73,14 +62,24 @@ for i in range(2):
         sns.histplot(ax = axis[i,j],data = df_num, x = c)
         sns.boxplot(ax = axis[i+2,j],data = df_num, x = c)
         index  +=1
-        
+
 # Adjust the layout
 plt.tight_layout()
 
-# Show the plot
+# Show the plots
 plt.savefig("df_num.jpg")
 
-plt.show()
+plt.clf()
+sns.countplot(data = df, x="room_type", hue="price")
+plt.savefig("corr_price_roomType.jpg")
+
+plt.clf()
+sns.regplot(data=df, x="minimum_nights", y="price")
+plt.savefig("reg_min_nights_price.jpg")
+
+plt.clf()
+sns.regplot(data=df, x="reviews_per_month", y="number_of_reviews")
+plt.savefig("reg_reviews.jpg")
 
 """Heatmaps & Analysis of multivariate variables"""
 
@@ -137,3 +136,17 @@ df["reviews_per_month"].fillna(df["reviews_per_month"].mean(), inplace = True)
 print(df.isnull().sum().sort_values(ascending=False)/len(df))
 
 """we want to predict the price of the houses. Split train set y var = price. """
+num_variables = df_num.columns
+num_var = ["latitude", "longitude","price","minimum_nights","number_of_reviews","reviews_per_month","calculated_host_listings_count","availability_365"]
+
+# We divide the dataset into training and test samples
+print(df.columns)
+
+y = df["price"]
+
+X = df.drop("price", axis = 1)[num_var]
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 42)
+
+print(X_train.head())
+
