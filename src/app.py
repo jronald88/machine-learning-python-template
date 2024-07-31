@@ -137,7 +137,7 @@ print(df.isnull().sum().sort_values(ascending=False)/len(df))
 
 """we want to predict the price of the houses. Split train set y var = price. """
 num_variables = df_num.columns
-num_var = ["latitude", "longitude","price","minimum_nights","number_of_reviews","reviews_per_month","calculated_host_listings_count","availability_365"]
+num_var = ["latitude", "longitude","minimum_nights","number_of_reviews","reviews_per_month","calculated_host_listings_count","availability_365"]
 
 # We divide the dataset into training and test samples
 print(df.columns)
@@ -153,15 +153,15 @@ print(X_train.head())
 #Min Max Scaling
 scaler = MinMaxScaler()
 scaler.fit(X_train)
-#scaler.fit(pd.concat([X_train, y_train.to_frame("price")], axis=1))  # Combine X_train and y_train
 
 
 # Transform training data
 X_train_scal = scaler.transform(X_train)
-X_train_scal = pd.DataFrame(X_train_scal, index = X_train.index, columns = num_variables)
+X_train_scal = pd.DataFrame(X_train_scal, index = X_train.index, columns = num_var)
 
 # Transform testing data
 X_test_scal = scaler.transform(X_test)
-X_test_scal = pd.DataFrame(X_test_scal, index = X_test.index, columns = num_variables)
+X_test_scal = pd.DataFrame(X_test_scal, index = X_test.index, columns = num_var)
 
-X_train_scal.head()
+print(X_train_scal.head())
+print("done")
