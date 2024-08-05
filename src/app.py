@@ -5,7 +5,9 @@ import numpy as np
 import matplotlib.pyplot as plt 
 import seaborn as sns
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, RobustScaler
+from sklearn.feature_selection import f_classif, SelectKBest
+
 
 
 
@@ -128,30 +130,42 @@ print(df[df["price"]>5000])
 print(df.isnull().sum().sort_values(ascending=False)/len(df))
 #convert last_review column to pandas datetime type.
 df['last_review'] = pd.to_datetime(df['last_review'])
-
+"""
 # Fill missing dates with the previous valid date
 df['last_review'] = df['last_review'].fillna(method='ffill')
 #fill missing data with mean number of reviews per month
 df["reviews_per_month"].fillna(df["reviews_per_month"].mean(), inplace = True)
-print(df.isnull().sum().sort_values(ascending=False)/len(df))
+"""
+# Identify columns with numerical data for mean imputation
+numeric_cols = df.select_dtypes(include=np.number).columns
+
+# Fill missing dates with the previous valid date
+df['last_review'] = df['last_review'].fillna(method='ffill')
+
+# Fill missing numerical data with column means
+for col in numeric_cols:
+    df[col].fillna(df[col].mean(), inplace=True)
+
+# Check for remaining NaN values
+print(df.isna().sum().sort_values(ascending=False)/len(df))
 
 """we want to predict the price of the houses. Split train set y var = price. """
 num_variables = df_num.columns
 num_var = ["latitude", "longitude","minimum_nights","number_of_reviews","reviews_per_month","calculated_host_listings_count","availability_365"]
 
 # We divide the dataset into training and test samples
-print(df.columns)
+X = df_num.drop("price", axis = 1)
 
 y = df_num["price"]
 
-X = df_num.drop("price", axis = 1)
-
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 42)
 
-print(X_train.head())
+print(X_train.info())
+print("Pre Robust")
+
 
 #Min Max Scaling
-scaler = MinMaxScaler()
+scaler = RobustScaler()
 scaler.fit(X_train)
 
 
@@ -163,5 +177,22 @@ X_train_scal = pd.DataFrame(X_train_scal, index = X_train.index, columns = num_v
 X_test_scal = scaler.transform(X_test)
 X_test_scal = pd.DataFrame(X_test_scal, index = X_test.index, columns = num_var)
 
-print(X_train_scal.head())
-print("done")
+#print(X_train_scal.head())
+print("Day 2 Complete")
+
+print(X_train_scal.isna().sum())
+print("Robust")
+#print(X_train_scal.info())
+#print(X_test_scal.info())
+"""Day 3"""
+
+# With a value of k = 5 we implicitly mean that we want to remove 2 features from the dataset
+selection_model = SelectKBest(f_classif, k = 5)
+selection_model.fit(X_train_scal, y_train)
+ix = selection_model.get_support()
+X_train_sel = pd.DataFrame(selection_model.transform(X_train), columns = X_train.columns.values[ix])
+X_test_sel = pd.DataFrame(selection_model.transform(X_test), columns = X_test.columns.values[ix])
+
+X_train_sel.head()
+
+
