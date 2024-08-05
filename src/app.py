@@ -142,12 +142,13 @@ numeric_cols = df.select_dtypes(include=np.number).columns
 # Fill missing dates with the previous valid date
 df['last_review'] = df['last_review'].fillna(method='ffill')
 
+
 # Fill missing numerical data with column means
 for col in numeric_cols:
-    df[col].fillna(df[col].mean(), inplace=True)
+    df_num[col].fillna(df_num[col].mean(), inplace=True)
 
 # Check for remaining NaN values
-print(df.isna().sum().sort_values(ascending=False)/len(df))
+print(df_num.isna().sum().sort_values(ascending=False)/len(df))
 
 """we want to predict the price of the houses. Split train set y var = price. """
 num_variables = df_num.columns
@@ -161,11 +162,10 @@ y = df_num["price"]
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 42)
 
 print(X_train.info())
-print("Pre Robust")
 
 
 #Min Max Scaling
-scaler = RobustScaler()
+scaler = MinMaxScaler()
 scaler.fit(X_train)
 
 
@@ -181,7 +181,6 @@ X_test_scal = pd.DataFrame(X_test_scal, index = X_test.index, columns = num_var)
 print("Day 2 Complete")
 
 print(X_train_scal.isna().sum())
-print("Robust")
 #print(X_train_scal.info())
 #print(X_test_scal.info())
 """Day 3"""
@@ -193,6 +192,6 @@ ix = selection_model.get_support()
 X_train_sel = pd.DataFrame(selection_model.transform(X_train), columns = X_train.columns.values[ix])
 X_test_sel = pd.DataFrame(selection_model.transform(X_test), columns = X_test.columns.values[ix])
 
-X_train_sel.head()
+print(X_train_sel.head())
 
 
