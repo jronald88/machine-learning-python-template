@@ -178,7 +178,7 @@ X_test_scal = scaler.transform(X_test)
 X_test_scal = pd.DataFrame(X_test_scal, index = X_test.index, columns = num_var)
 
 #print(X_train_scal.head())
-print("Day 2 Complete")
+
 
 print(X_train_scal.isna().sum())
 #print(X_train_scal.info())
@@ -193,5 +193,12 @@ X_train_sel = pd.DataFrame(selection_model.transform(X_train), columns = X_train
 X_test_sel = pd.DataFrame(selection_model.transform(X_test), columns = X_test.columns.values[ix])
 
 print(X_train_sel.head())
+print(X_test_sel.head())
 
+X_train_sel["price"] = list(y_train)
+X_test_sel["price"] = list(y_test)
 
+X_train_sel.to_csv("/workspaces/machine-learning-python-template/assets/clean_NYC_realestate_train.csv", index=False)
+X_test_sel.to_csv("/workspaces/machine-learning-python-template/assets/clean_NYC_realestate_test.csv", index=False)
+
+print("Day 3 Complete")
